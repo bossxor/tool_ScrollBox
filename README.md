@@ -16,7 +16,7 @@
 ## 다운로드
 
 - 프로젝트 모음: [bossxor.netlify.app](https://bossxor.netlify.app/)
-- APK: [`releases/ScrollBox-from-TIViewer.apk`](releases/ScrollBox-from-TIViewer.apk)
+- APK: [`ScrollBox-from-TIViewer.apk`](https://github.com/bossxor/tool_ScrollBox/raw/main/releases/ScrollBox-from-TIViewer.apk) (v1.0.2)
 
 ```bash
 adb install -r releases/ScrollBox-from-TIViewer.apk
