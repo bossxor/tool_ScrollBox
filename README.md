@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | 패키지 | `com.bossxor.scrollbox` |
-| 버전 | **1.0.5** (versionCode **105**) |
+| 버전 | **1.0.6** (versionCode **106**) |
 | minSdk / targetSdk | 9 / 28 |
 | 기반 | legacy viewer patch (패키지·브랜딩 교체) |
 | 저장소 | https://github.com/bossxor/tool_ScrollBox |
@@ -16,7 +16,7 @@
 ## 다운로드
 
 - 작업 로그: [bossxor.netlify.app](https://bossxor.netlify.app/)
-- APK: [`ScrollBox.apk`](https://github.com/bossxor/tool_ScrollBox/raw/main/releases/ScrollBox.apk) (v1.0.5)
+- APK: [`ScrollBox.apk`](https://github.com/bossxor/tool_ScrollBox/raw/main/releases/ScrollBox.apk) (v1.0.6)
 
 ```bash
 adb install -r releases/ScrollBox.apk
@@ -36,7 +36,8 @@ adb install releases/ScrollBox.apk
 
 ### 추가
 - 앱 잠금: **PIN** + **패턴**(3×3 드래그) + **생체**(지문/얼굴, PIN/패턴 선행)
-- 사이드바 하단 버전 표시 (`ScrollBox 1.0.5`)
+- 사이드바 하단 버전 표시 (`ScrollBox 1.0.6`)
+- 뷰어: 하단 내비만 숨기고, **상태바 표시함** 설정 존중
 
 ### 숨김·제거
 - 광고 / 인앱결제 / 푸시
