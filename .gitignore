@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-﻿# ScrollBox workspace
-=======
 # ScrollBox workspace
 TXTViewer/
->>>>>>> 0bc5c13 (docs: refresh README and remove TXTViewer)
 dist/
 *.apk
 *.ap_
