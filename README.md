@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | 패키지 | `com.bossxor.scrollbox` |
-| 버전 | **1.0.9** (versionCode **109**) |
+| 버전 | **1.0.10** (versionCode **110**) |
 | minSdk / targetSdk | 9 / 28 |
 | 기반 | legacy viewer patch (패키지·브랜딩 교체) |
 | 저장소 | https://github.com/bossxor/tool_ScrollBox |
@@ -16,7 +16,7 @@
 ## 다운로드
 
 - 작업 로그: [bossxor.netlify.app](https://bossxor.netlify.app/)
-- APK: [`ScrollBox.apk`](https://github.com/bossxor/tool_ScrollBox/raw/main/releases/ScrollBox.apk) (v1.0.9)
+- APK: [`ScrollBox.apk`](https://github.com/bossxor/tool_ScrollBox/raw/main/releases/ScrollBox.apk) (v1.0.10)
 
 ```bash
 adb install -r releases/ScrollBox.apk
@@ -36,9 +36,9 @@ adb install releases/ScrollBox.apk
 
 ### 추가
 - 앱 잠금: **PIN** + **패턴**(3×3 드래그) + **생체**(지문/얼굴, PIN/패턴 선행) + **재잠금 타임아웃**(즉시/1/5/15분)
-- 사이드바 하단 버전 표시 (`ScrollBox 1.0.9`)
+- 사이드바 하단 버전 표시 (`ScrollBox 1.0.10`)
 - 뷰어: 하단 내비만 숨기고, **상태바 표시함** 설정 존중
-- **페이지 넘김**: 페이지당 줄수 1줄 여유 — 상하 터치 넘김 시 한 줄 건너뜀 완화
+- **페이지 넘김**: 상하 터치 시 1줄 겹침 — 스크롤 후 넘김에서 한 줄 건너뜀 완화
 - **백업/복원**: 설정·최근목록·책갈피(이어읽기 위치)·테마 설정값(배경 이미지 제외)·파일별 인코딩 — 생성 직후 공유 시트
 - Android 11+: **모든 파일 접근** 안내 (파일 목록 진입 시)
 - 텍스트: 경로별 인코딩 자동 고정(감지 결과 저장·재오픈 시 복원)
