@@ -1,5 +1,6 @@
 # ScrollBox workspace
 dist/
+_diff/
 *.apk
 !releases/*.apk
 *.ap_
