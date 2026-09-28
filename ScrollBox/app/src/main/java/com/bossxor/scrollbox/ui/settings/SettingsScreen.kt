@@ -5,13 +5,17 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bossxor.scrollbox.ScrollBoxApp
 import com.bossxor.scrollbox.data.Backup
@@ -35,6 +39,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     var bio by remember { mutableStateOf(false) }
     var tzTop by remember { mutableFloatStateOf(0.3f) }
     var tzBottom by remember { mutableFloatStateOf(0.3f) }
+    var themeMode by remember { mutableStateOf("system") }
 
     LaunchedEffect(Unit) {
         lockEnabled = app.prefs.get(Prefs.Keys.LOCK_ENABLED, false)
@@ -43,6 +48,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         bio = app.prefs.get(Prefs.Keys.BIOMETRIC, false)
         tzTop = app.prefs.get(Prefs.Keys.TOUCH_ZONE_TOP, 0.3f)
         tzBottom = app.prefs.get(Prefs.Keys.TOUCH_ZONE_BOTTOM, 0.3f)
+        themeMode = app.prefs.get(Prefs.Keys.THEME_MODE, "system")
     }
 
     val exportLauncher = rememberLauncherForActivityResult(
@@ -83,75 +89,135 @@ fun SettingsScreen(onBack: () -> Unit) {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { pad ->
         Column(
-            Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+            Modifier
+                .padding(pad)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("앱 잠금", style = MaterialTheme.typography.titleMedium)
-            Row {
-                Text("잠금 사용", Modifier.weight(1f))
-                Switch(checked = lockEnabled, onCheckedChange = {
-                    lockEnabled = it
-                    scope.launch { app.prefs.set(Prefs.Keys.LOCK_ENABLED, it) }
-                })
-            }
-            OutlinedTextField(
-                value = pin,
-                onValueChange = { pin = it.filter { c -> c.isDigit() }.take(8) },
-                label = { Text("PIN (숫자)") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = pattern,
-                onValueChange = { pattern = it },
-                label = { Text("패턴 (예: 1-2-3-6-9)") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Button(onClick = {
-                scope.launch {
-                    app.prefs.set(Prefs.Keys.LOCK_PIN, pin)
-                    app.prefs.set(Prefs.Keys.LOCK_PATTERN, pattern)
-                    Toast.makeText(ctx, "잠금 정보 저장", Toast.LENGTH_SHORT).show()
+            SettingsSection(title = "화면") {
+                Column(Modifier.selectableGroup()) {
+                    listOf(
+                        "system" to "시스템",
+                        "light" to "라이트",
+                        "dark" to "다크"
+                    ).forEach { (value, label) ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = themeMode == value,
+                                    onClick = {
+                                        themeMode = value
+                                        scope.launch { app.prefs.set(Prefs.Keys.THEME_MODE, value) }
+                                    },
+                                    role = Role.RadioButton
+                                )
+                                .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = themeMode == value,
+                                onClick = null
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(label, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
                 }
-            }) { Text("PIN/패턴 저장") }
-            Row {
-                Text("생체 인증 (PIN/패턴 후)", Modifier.weight(1f))
-                Switch(checked = bio, onCheckedChange = {
-                    bio = it
-                    scope.launch { app.prefs.set(Prefs.Keys.BIOMETRIC, it) }
-                })
             }
 
-            HorizontalDivider()
-            Text("뷰어 터치 영역", style = MaterialTheme.typography.titleMedium)
-            Text("상단(이전): ${(tzTop * 100).toInt()}%")
-            Slider(value = tzTop, onValueChange = {
-                tzTop = it
-                scope.launch { app.prefs.set(Prefs.Keys.TOUCH_ZONE_TOP, it) }
-            }, valueRange = 0.1f..0.45f)
-            Text("하단(다음): ${(tzBottom * 100).toInt()}%")
-            Slider(value = tzBottom, onValueChange = {
-                tzBottom = it
-                scope.launch { app.prefs.set(Prefs.Keys.TOUCH_ZONE_BOTTOM, it) }
-            }, valueRange = 0.1f..0.45f)
+            SettingsSection(title = "앱 잠금") {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("잠금 사용", Modifier.weight(1f))
+                    Switch(checked = lockEnabled, onCheckedChange = {
+                        lockEnabled = it
+                        scope.launch { app.prefs.set(Prefs.Keys.LOCK_ENABLED, it) }
+                    })
+                }
+                OutlinedTextField(
+                    value = pin,
+                    onValueChange = { pin = it.filter { c -> c.isDigit() }.take(8) },
+                    label = { Text("PIN (숫자)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium
+                )
+                OutlinedTextField(
+                    value = pattern,
+                    onValueChange = { pattern = it },
+                    label = { Text("패턴 (예: 1-2-3-6-9)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium
+                )
+                Button(onClick = {
+                    scope.launch {
+                        app.prefs.set(Prefs.Keys.LOCK_PIN, pin)
+                        app.prefs.set(Prefs.Keys.LOCK_PATTERN, pattern)
+                        Toast.makeText(ctx, "잠금 정보 저장", Toast.LENGTH_SHORT).show()
+                    }
+                }) { Text("PIN/패턴 저장") }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("생체 인증 (PIN/패턴 후)", Modifier.weight(1f))
+                    Switch(checked = bio, onCheckedChange = {
+                        bio = it
+                        scope.launch { app.prefs.set(Prefs.Keys.BIOMETRIC, it) }
+                    })
+                }
+            }
 
-            HorizontalDivider()
-            Text("테마", style = MaterialTheme.typography.titleMedium)
-            Text("다크 모드는 시스템 설정을 따릅니다.")
+            SettingsSection(title = "뷰어 터치 영역") {
+                Text("상단(이전): ${(tzTop * 100).toInt()}%")
+                Slider(value = tzTop, onValueChange = {
+                    tzTop = it
+                    scope.launch { app.prefs.set(Prefs.Keys.TOUCH_ZONE_TOP, it) }
+                }, valueRange = 0.1f..0.45f)
+                Text("하단(다음): ${(tzBottom * 100).toInt()}%")
+                Slider(value = tzBottom, onValueChange = {
+                    tzBottom = it
+                    scope.launch { app.prefs.set(Prefs.Keys.TOUCH_ZONE_BOTTOM, it) }
+                }, valueRange = 0.1f..0.45f)
+            }
 
-            HorizontalDivider()
-            Text("백업 / 복원", style = MaterialTheme.typography.titleMedium)
-            Button(onClick = { exportLauncher.launch("scrollbox-backup.json") }) { Text("JSON 백업") }
-            Button(onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) }) { Text("JSON 복원") }
+            SettingsSection(title = "백업 / 복원") {
+                Button(onClick = { exportLauncher.launch("scrollbox-backup.json") }) { Text("JSON 백업") }
+                Button(onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) }) { Text("JSON 복원") }
+            }
 
-            HorizontalDivider()
-            Text("ScrollBox 1.0.0", style = MaterialTheme.typography.bodySmall)
+            Text(
+                "ScrollBox 1.0.1",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        tonalElevation = 1.dp,
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            content()
         }
     }
 }

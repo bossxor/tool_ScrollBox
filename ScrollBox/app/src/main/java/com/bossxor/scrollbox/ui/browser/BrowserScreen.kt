@@ -14,22 +14,26 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import com.bossxor.scrollbox.ScrollBoxApp
 import com.bossxor.scrollbox.data.*
 import kotlinx.coroutines.Dispatchers
@@ -44,32 +48,54 @@ private enum class ClipMode { COPY, CUT }
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(onOpenFile: (String) -> Unit, onSettings: () -> Unit) {
-    val ctx = LocalContext.current
-    val app = ScrollBoxApp.instance
-    val scope = rememberCoroutineScope()
     var tab by remember { mutableIntStateOf(0) }
+    val cs = MaterialTheme.colorScheme
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("ScrollBox") },
+                title = {
+                    Column {
+                        Text(
+                            "ScrollBox",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            "텍스트 · 파일 뷰어",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = cs.onSurfaceVariant
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = onSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "settings")
+                        Icon(Icons.Default.Settings, contentDescription = "설정")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = cs.surface,
+                    titleContentColor = cs.onSurface
+                )
             )
         },
         bottomBar = {
-            NavigationBar {
-                NavigationBarItem(selected = tab == 0, onClick = { tab = 0 },
-                    icon = { Icon(Icons.Default.Folder, null) }, label = { Text("파일") })
-                NavigationBarItem(selected = tab == 1, onClick = { tab = 1 },
-                    icon = { Icon(Icons.Default.History, null) }, label = { Text("최근") })
-                NavigationBarItem(selected = tab == 2, onClick = { tab = 2 },
-                    icon = { Icon(Icons.Default.Star, null) }, label = { Text("즐겨찾기") })
+            NavigationBar(tonalElevation = 3.dp) {
+                NavigationBarItem(
+                    selected = tab == 0, onClick = { tab = 0 },
+                    icon = { Icon(Icons.Default.Folder, null) }, label = { Text("파일") }
+                )
+                NavigationBarItem(
+                    selected = tab == 1, onClick = { tab = 1 },
+                    icon = { Icon(Icons.Default.History, null) }, label = { Text("최근") }
+                )
+                NavigationBarItem(
+                    selected = tab == 2, onClick = { tab = 2 },
+                    icon = { Icon(Icons.Default.Star, null) }, label = { Text("즐겨찾기") }
+                )
             }
-        }
+        },
+        containerColor = cs.background
     ) { pad ->
         Box(Modifier.padding(pad).fillMaxSize()) {
             when (tab) {
@@ -87,6 +113,7 @@ private fun BrowserPane(onOpenFile: (String) -> Unit) {
     val ctx = LocalContext.current
     val app = ScrollBoxApp.instance
     val scope = rememberCoroutineScope()
+    val cs = MaterialTheme.colorScheme
     var current by remember { mutableStateOf(FileOps.defaultRoot()) }
     var sort by remember { mutableStateOf(SortMode.NAME_ASC) }
     var query by remember { mutableStateOf("") }
@@ -180,39 +207,46 @@ private fun BrowserPane(onOpenFile: (String) -> Unit) {
             )
         }
 
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = cs.surfaceVariant.copy(alpha = 0.55f)
         ) {
-            IconButton(onClick = { current.parentFile?.let { current = it } }) {
-                Icon(Icons.Default.ArrowUpward, "up")
-            }
-            Text(
-                current.absolutePath,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f).clickable {
-                    val cm = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    cm.setPrimaryClip(ClipData.newPlainText("path", current.absolutePath))
-                    Toast.makeText(ctx, "경로 복사됨", Toast.LENGTH_SHORT).show()
-                },
-                style = MaterialTheme.typography.bodySmall
-            )
-            IconButton(onClick = { safLauncher.launch(null) }) {
-                Icon(Icons.Default.FolderOpen, "SAF")
-            }
-            IconButton(onClick = { showSort = true }) {
-                Icon(Icons.Default.Sort, "sort")
-            }
-            IconButton(onClick = { showNew = true; newIsFolder = true; newName = "" }) {
-                Icon(Icons.Default.CreateNewFolder, "new")
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { current.parentFile?.let { current = it } }) {
+                    Icon(Icons.Default.ArrowUpward, "상위")
+                }
+                Text(
+                    current.absolutePath,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f).clickable {
+                        val cm = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        cm.setPrimaryClip(ClipData.newPlainText("path", current.absolutePath))
+                        Toast.makeText(ctx, "경로 복사됨", Toast.LENGTH_SHORT).show()
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = cs.onSurfaceVariant
+                )
+                IconButton(onClick = { safLauncher.launch(null) }) {
+                    Icon(Icons.Default.FolderOpen, "SAF")
+                }
+                IconButton(onClick = { showSort = true }) {
+                    Icon(Icons.Default.Sort, "정렬")
+                }
+                IconButton(onClick = { showNew = true; newIsFolder = true; newName = "" }) {
+                    Icon(Icons.Default.CreateNewFolder, "새 항목")
+                }
             }
         }
 
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
             singleLine = true,
             placeholder = { Text("파일명 검색") },
             leadingIcon = { Icon(Icons.Default.Search, null) },
@@ -220,24 +254,30 @@ private fun BrowserPane(onOpenFile: (String) -> Unit) {
                 if (query.isNotEmpty()) IconButton(onClick = { query = "" }) {
                     Icon(Icons.Default.Clear, null)
                 }
-            }
+            },
+            shape = RoundedCornerShape(12.dp)
         )
 
         if (selecting || clipboard.isNotEmpty()) {
-            Row(Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
                 if (selecting) {
-                    TextButton(onClick = {
+                    FilterChip(selected = false, onClick = {
                         selected = items.map { it.file.absolutePath }.toSet()
-                    }) { Text("전체") }
-                    TextButton(onClick = {
+                    }, label = { Text("전체") })
+                    FilledTonalButton(onClick = {
                         clipboard = selected.map { File(it) }; clipMode = ClipMode.COPY
                         Toast.makeText(ctx, "복사", Toast.LENGTH_SHORT).show()
                     }) { Text("복사") }
-                    TextButton(onClick = {
+                    FilledTonalButton(onClick = {
                         clipboard = selected.map { File(it) }; clipMode = ClipMode.CUT
                         Toast.makeText(ctx, "잘라내기", Toast.LENGTH_SHORT).show()
                     }) { Text("잘라내기") }
-                    TextButton(onClick = {
+                    FilledTonalButton(onClick = {
                         scope.launch(Dispatchers.IO) {
                             selected.forEach { FileOps.delete(File(it)) }
                             withContext(Dispatchers.Main) {
@@ -246,15 +286,17 @@ private fun BrowserPane(onOpenFile: (String) -> Unit) {
                         }
                     }) { Text("삭제") }
                     if (selected.size == 1) {
-                        TextButton(onClick = {
+                        FilterChip(selected = false, onClick = {
                             val f = File(selected.first())
                             showRename = f; renameText = f.name
-                        }) { Text("이름변경") }
+                        }, label = { Text("이름변경") })
                     }
-                    TextButton(onClick = { selecting = false; selected = emptySet() }) { Text("취소") }
+                    FilterChip(selected = false, onClick = {
+                        selecting = false; selected = emptySet()
+                    }, label = { Text("취소") })
                 }
                 if (clipboard.isNotEmpty()) {
-                    TextButton(onClick = {
+                    FilledTonalButton(onClick = {
                         scope.launch(Dispatchers.IO) {
                             clipboard.forEach { src ->
                                 if (clipMode == ClipMode.COPY) FileOps.copy(src, current)
@@ -274,57 +316,85 @@ private fun BrowserPane(onOpenFile: (String) -> Unit) {
             LinearProgressIndicator(progress = { unzipProgress }, modifier = Modifier.fillMaxWidth().padding(8.dp))
         }
 
-        LazyColumn(Modifier.fillMaxSize()) {
-            items(items, key = { it.file.absolutePath }) { item ->
-                val path = item.file.absolutePath
-                val isSel = path in selected
-                ListItem(
-                    headlineContent = { Text(item.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    supportingContent = {
-                        val sdf = remember { SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()) }
-                        Text(
-                            if (item.isDir) "폴더 · ${sdf.format(Date(item.modified))}"
-                            else "${formatSize(item.size)} · ${sdf.format(Date(item.modified))}"
-                        )
-                    },
-                    leadingContent = {
-                        Icon(
-                            when {
-                                item.isDir -> Icons.Default.Folder
-                                item.name.endsWith(".zip", true) || item.name.endsWith(".cbz", true) -> Icons.Default.Archive
-                                isImage(item.name) -> Icons.Default.Image
-                                else -> Icons.Default.Description
-                            },
-                            null
-                        )
-                    },
-                    trailingContent = {
+        if (items.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    if (query.isNotEmpty()) "검색 결과 없음" else "이 폴더가 비어 있습니다",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = cs.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(Modifier.fillMaxSize()) {
+                items(items, key = { it.file.absolutePath }) { item ->
+                    val path = item.file.absolutePath
+                    val isSel = path in selected
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .combinedClickable(
+                                onClick = {
+                                    if (selecting) {
+                                        selected = if (isSel) selected - path else selected + path
+                                    } else when {
+                                        item.isDir -> current = item.file
+                                        item.name.endsWith(".zip", true) -> showUnzip = item.file
+                                        item.name.endsWith(".cbz", true) -> onOpenFile(path)
+                                        isImage(item.name) -> onOpenFile(path)
+                                        item.name.endsWith(".epub", true) -> onOpenFile(path)
+                                        else -> onOpenFile(path)
+                                    }
+                                },
+                                onLongClick = {
+                                    selecting = true
+                                    selected = selected + path
+                                }
+                            )
+                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(cs.primaryContainer.copy(alpha = 0.55f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                when {
+                                    item.isDir -> Icons.Default.Folder
+                                    item.name.endsWith(".zip", true) || item.name.endsWith(".cbz", true) -> Icons.Default.Archive
+                                    isImage(item.name) -> Icons.Default.Image
+                                    else -> Icons.Default.Description
+                                },
+                                null,
+                                tint = cs.onPrimaryContainer
+                            )
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(item.name, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyLarge)
+                            val sdf = remember { SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()) }
+                            Text(
+                                if (item.isDir) "폴더 · ${sdf.format(Date(item.modified))}"
+                                else "${formatSize(item.size)} · ${sdf.format(Date(item.modified))}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = cs.onSurfaceVariant
+                            )
+                        }
                         if (selecting) {
                             Checkbox(checked = isSel, onCheckedChange = {
                                 selected = if (isSel) selected - path else selected + path
                             })
                         }
-                    },
-                    modifier = Modifier.combinedClickable(
-                        onClick = {
-                            if (selecting) {
-                                selected = if (isSel) selected - path else selected + path
-                            } else when {
-                                item.isDir -> current = item.file
-                                item.name.endsWith(".zip", true) -> showUnzip = item.file
-                                item.name.endsWith(".cbz", true) -> onOpenFile(path) // comic in viewer
-                                isImage(item.name) -> onOpenFile(path)
-                                item.name.endsWith(".epub", true) -> onOpenFile(path)
-                                else -> onOpenFile(path)
-                            }
-                        },
-                        onLongClick = {
-                            selecting = true
-                            selected = selected + path
-                        }
+                    }
+                    HorizontalDivider(
+                        Modifier.padding(start = 64.dp, end = 12.dp),
+                        thickness = 0.5.dp,
+                        color = cs.outlineVariant.copy(alpha = 0.5f)
                     )
-                )
-                HorizontalDivider()
+                }
             }
         }
     }
@@ -443,16 +513,32 @@ private fun BrowserPane(onOpenFile: (String) -> Unit) {
 @Composable
 private fun RecentPane(onOpenFile: (String) -> Unit) {
     val app = ScrollBoxApp.instance
+    val cs = MaterialTheme.colorScheme
     var list by remember { mutableStateOf(listOf<ReadingProgress>()) }
     LaunchedEffect(Unit) { list = app.db.progress().recent() }
-    LazyColumn(Modifier.fillMaxSize()) {
-        items(list) { p ->
-            ListItem(
-                headlineContent = { Text(File(p.path).name) },
-                supportingContent = { Text("${(p.percent * 100).toInt()}% · ${p.path}", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                modifier = Modifier.clickable { onOpenFile(p.path) }
-            )
-            HorizontalDivider()
+    if (list.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("최근 기록이 없습니다", color = cs.onSurfaceVariant)
+        }
+    } else {
+        LazyColumn(Modifier.fillMaxSize()) {
+            items(list) { p ->
+                ListItem(
+                    headlineContent = { Text(File(p.path).name) },
+                    supportingContent = {
+                        Text(
+                            "${(p.percent * 100).toInt()}% · ${p.path}",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    modifier = Modifier.clickable { onOpenFile(p.path) }
+                )
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = cs.outlineVariant.copy(alpha = 0.5f)
+                )
+            }
         }
     }
 }
@@ -460,24 +546,34 @@ private fun RecentPane(onOpenFile: (String) -> Unit) {
 @Composable
 private fun FavPane(onOpenFile: (String) -> Unit) {
     val app = ScrollBoxApp.instance
+    val cs = MaterialTheme.colorScheme
     var list by remember { mutableStateOf(listOf<Favorite>()) }
     LaunchedEffect(Unit) { list = app.db.favorites().all() }
-    LazyColumn(Modifier.fillMaxSize()) {
-        items(list) { f ->
-            ListItem(
-                headlineContent = { Text(f.name) },
-                supportingContent = { Text(f.path, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                trailingContent = {
-                    IconButton(onClick = {
-                        kotlinx.coroutines.MainScope().launch {
-                            app.db.favorites().delete(f.path)
-                            list = app.db.favorites().all()
-                        }
-                    }) { Icon(Icons.Default.Delete, null) }
-                },
-                modifier = Modifier.clickable { onOpenFile(f.path) }
-            )
-            HorizontalDivider()
+    if (list.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("즐겨찾기가 없습니다", color = cs.onSurfaceVariant)
+        }
+    } else {
+        LazyColumn(Modifier.fillMaxSize()) {
+            items(list) { f ->
+                ListItem(
+                    headlineContent = { Text(f.name) },
+                    supportingContent = { Text(f.path, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    trailingContent = {
+                        IconButton(onClick = {
+                            kotlinx.coroutines.MainScope().launch {
+                                app.db.favorites().delete(f.path)
+                                list = app.db.favorites().all()
+                            }
+                        }) { Icon(Icons.Default.Delete, null) }
+                    },
+                    modifier = Modifier.clickable { onOpenFile(f.path) }
+                )
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = cs.outlineVariant.copy(alpha = 0.5f)
+                )
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,9 +32,11 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         val openPath = intentPath(intent)
         setContent {
-            ScrollBoxTheme {
+            val app = ScrollBoxApp.instance
+            val themeMode by app.prefs.themeMode.collectAsState(initial = "system")
+
+            ScrollBoxTheme(themeMode = themeMode) {
                 val nav = rememberNavController()
-                val app = ScrollBoxApp.instance
                 var unlocked by remember { mutableStateOf(false) }
                 var lockChecked by remember { mutableStateOf(false) }
                 var lockOn by remember { mutableStateOf(false) }
@@ -102,7 +105,6 @@ class MainActivity : FragmentActivity() {
         val uri: Uri? = intent.data
         if (uri != null) {
             if (uri.scheme == "file") return uri.path
-            // content:// — pass as special uri path marker
             return "content:${uri}"
         }
         return intent.getStringExtra(Intent.EXTRA_TEXT)

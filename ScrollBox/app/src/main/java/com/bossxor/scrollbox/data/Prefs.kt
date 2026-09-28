@@ -32,7 +32,7 @@ class Prefs(private val ctx: Context) {
         val BIOMETRIC = booleanPreferencesKey("biometric")
         val LAST_DIR = stringPreferencesKey("last_dir")
         val SORT_MODE = stringPreferencesKey("sort_mode")
-        val DARK_FOLLOW = booleanPreferencesKey("dark_follow")
+        val THEME_MODE = stringPreferencesKey("theme_mode") // system | light | dark
     }
 
     val fontSize: Flow<Float> = ds.data.map { it[Keys.FONT_SIZE] ?: 18f }
@@ -49,6 +49,7 @@ class Prefs(private val ctx: Context) {
     val lockEnabled: Flow<Boolean> = ds.data.map { it[Keys.LOCK_ENABLED] ?: false }
     val lastDir: Flow<String> = ds.data.map { it[Keys.LAST_DIR] ?: "" }
     val sortMode: Flow<String> = ds.data.map { it[Keys.SORT_MODE] ?: "name_asc" }
+    val themeMode: Flow<String> = ds.data.map { it[Keys.THEME_MODE] ?: "system" }
 
     suspend fun get(key: Preferences.Key<String>, def: String = "") = ds.data.first()[key] ?: def
     suspend fun get(key: Preferences.Key<Boolean>, def: Boolean = false) = ds.data.first()[key] ?: def
@@ -80,6 +81,7 @@ class Prefs(private val ctx: Context) {
             "biometric" to (p[Keys.BIOMETRIC] ?: false),
             "last_dir" to (p[Keys.LAST_DIR] ?: ""),
             "sort_mode" to (p[Keys.SORT_MODE] ?: "name_asc"),
+            "theme_mode" to (p[Keys.THEME_MODE] ?: "system"),
             "tz_top" to (p[Keys.TOUCH_ZONE_TOP] ?: 0.3f),
             "tz_bottom" to (p[Keys.TOUCH_ZONE_BOTTOM] ?: 0.3f)
         )
@@ -104,6 +106,7 @@ class Prefs(private val ctx: Context) {
             (map["biometric"] as? Boolean)?.let { e[Keys.BIOMETRIC] = it }
             (map["last_dir"] as? String)?.let { e[Keys.LAST_DIR] = it }
             (map["sort_mode"] as? String)?.let { e[Keys.SORT_MODE] = it }
+            (map["theme_mode"] as? String)?.let { e[Keys.THEME_MODE] = it }
             (map["tz_top"] as? Number)?.toFloat()?.let { e[Keys.TOUCH_ZONE_TOP] = it }
             (map["tz_bottom"] as? Number)?.toFloat()?.let { e[Keys.TOUCH_ZONE_BOTTOM] = it }
         }

@@ -334,7 +334,12 @@ fun ViewerScreen(
                     IconButton(onClick = { showSearch = !showSearch }) { Icon(Icons.Default.Search, null) }
                     IconButton(onClick = { showMenu = true }) { Icon(Icons.Default.MoreVert, null) }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
 
@@ -656,11 +661,20 @@ fun ViewerScreen(
 @Composable
 private fun ImageViewer(file: File, onBack: () -> Unit) {
     val bmp = remember(file) { BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap() }
-    Scaffold(topBar = {
-        TopAppBar(title = { Text(file.name) }, navigationIcon = {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-        })
-    }) { pad ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(file.name) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { pad ->
         Box(Modifier.padding(pad).fillMaxSize(), contentAlignment = Alignment.Center) {
             if (bmp != null) Image(bmp, file.name, Modifier.fillMaxWidth().verticalScroll(rememberScrollState()))
             else Text("이미지를 열 수 없습니다")
@@ -684,14 +698,20 @@ private fun ComicViewer(file: File, onBack: () -> Unit) {
         } catch (_: Exception) { emptyList() }
     }
     var idx by remember { mutableIntStateOf(0) }
-    Scaffold(topBar = {
-        TopAppBar(
-            title = { Text("${file.name} (${idx + 1}/${images.size})") },
-            navigationIcon = {
-                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-            }
-        )
-    }) { pad ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("${file.name} (${idx + 1}/${images.size})") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { pad ->
         Box(
             Modifier.padding(pad).fillMaxSize().pointerInput(images.size) {
                 detectTapGestures { off ->
