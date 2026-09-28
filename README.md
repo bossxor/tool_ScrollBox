@@ -7,68 +7,58 @@
 | | |
 |---|---|
 | 패키지 | `com.bossxor.scrollbox` |
-| 버전 | 1.0.1 (versionCode 2) |
-| minSdk / targetSdk | 26 / 34 |
-| 스택 | Kotlin, Jetpack Compose, Material 3, Room, DataStore |
+| 버전 | **1.0.2** (versionCode **102**) |
+| minSdk / targetSdk | 9 / 28 |
+| 배포 | TIViewer 기반 패치 APK (광고·웹 제거, 패키지·서명 교체) |
 | 저장소 | https://github.com/bossxor/tool_ScrollBox |
 | 작업 모음 | https://bossxor.netlify.app/ |
 
 ## 다운로드
 
 - 프로젝트 모음: [bossxor.netlify.app](https://bossxor.netlify.app/)
-- [Release v1.0.1](https://github.com/bossxor/tool_ScrollBox/releases/tag/v1.0.1)
-- APK: [ScrollBox-1.0.1-debug.apk](https://github.com/bossxor/tool_ScrollBox/releases/download/v1.0.1/ScrollBox-1.0.1-debug.apk)
+- APK: [`releases/ScrollBox-from-TIViewer.apk`](releases/ScrollBox-from-TIViewer.apk)
 
 ```bash
-adb install -r ScrollBox-1.0.1-debug.apk
+adb install -r releases/ScrollBox-from-TIViewer.apk
+# 서명 충돌 시
+adb uninstall com.bossxor.scrollbox
+adb install releases/ScrollBox-from-TIViewer.apk
 ```
 
 ## 주요 기능
 
-### 파일 탐색기
-- 폴더 탐색, 정렬(이름/크기/날짜 × 오름·내림)
-- 복사 / 잘라내기 / 붙여넣기(이동) / 삭제 / 이름변경
-- 폴더·빈 txt 생성, 다중 선택, 파일명 검색
-- 경로 클립보드 복사, SAF 폴더 선택
-- **zip 압축 해제**: 기본은 zip 이름 폴더 생성 후 풀기, 체크 해제 시 현재 폴더에 풀기
-- 암호 zip(N22), 최근 파일 / 즐겨찾기
+원본 뷰어 기능을 유지하고, 아래만 변경·추가했다.
 
-### 텍스트 뷰어
-- 상하·좌우 터치 / 세로 스크롤, 이어읽기
-- 본문 검색, 책갈피, 글자크기·줄간격·여백·테마색
-- 밝기, 볼륨키 넘김, 화면 켜짐 유지, 다음/이전 파일
-- 인코딩 자동 + 수동(UTF-8 / EUC-KR)
-- 진행률 %, TTS, 줄번호, 하이라이트·메모
-- 제스처 잠금, 맞춤 터치 영역
-- epub 간단 텍스트 읽기, 외부 `text/plain` 열기
+### 유지 (원본)
+- 파일 탐색: 정렬·필터·복사/이동/삭제/이름변경·폴더·txt 생성·검색·홈 경로 등
+- 텍스트 뷰어: 넘김 모드·이어읽기·검색·책갈피·테마·밝기·볼륨키·인코딩 등
+- 이미지/만화(zip·cbz 등), 최근 목록, 설정
 
-### 이미지 / 만화
-- jpg/png/gif/webp 등, cbz 스크롤
+### 추가
+- 앱 잠금: **PIN** + **패턴**(3×3 탭) + **생체**(지문/얼굴, PIN/패턴 폴백)
 
-### 설정 · 보안
-- 테마: **시스템 / 라이트 / 다크**
-- 앱 잠금: PIN, 패턴, 생체(지문/얼굴) + 폴백
-- JSON 백업·복원
+### 제거·숨김
+- 광고 / 인앱결제 / 푸시
+- 웹·커뮤니티 탭
+- 사이드바: 로그인, 공지, FAQ, 관리자 문의, 백업·복구·초기화
 
-## 빌드
+## 빌드 (패치 APK)
 
-JDK 17 + Android SDK 필요.
+작업 트리는 보통 `C:\Temp\ScrollBoxApk` (apktool 디컴파일).
 
 ```bash
-cd ScrollBox
-./gradlew.bat assembleDebug
-# APK: app/build/outputs/apk/debug/app-debug.apk
+apktool b C:\Temp\ScrollBoxApk -o ScrollBox-unsigned.apk
+# zipalign + apksigner (scrollbox.keystore, alias scrollbox)
 ```
-
-로컬 빌드가 UNC 경로에서 실패하면 `C:\Temp\ScrollBox`에 복사 후 빌드해도 됩니다.
 
 ## 디렉터리
 
 ```
-ScrollBox/          # Android 프로젝트
-releases/           # 배포 APK (릴리스에도 첨부)
+releases/                 # 배포 APK
+ScrollBox/                # (실험용) Compose 프로젝트 — 현재 배포본 아님
+TIViewer2.ver.0.9.4/      # 디컴파일 원본 (git 제외 권장)
 ```
 
 ## 라이선스
 
-개인/내부 사용 목적. 신규 구현입니다.
+개인/내부 사용 목적.

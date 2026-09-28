@@ -1,10 +1,12 @@
 # ScrollBox workspace
 dist/
 *.apk
+!releases/*.apk
 *.ap_
 *.aab
 *.keystore
 *.jks
+TIViewer2.ver.0.9.4/
 local.properties
 .gradle/
 **/build/
