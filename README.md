@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | 패키지 | `com.bossxor.scrollbox` |
-| 버전 | **1.0.7** (versionCode **107**) |
+| 버전 | **1.0.8** (versionCode **108**) |
 | minSdk / targetSdk | 9 / 28 |
 | 기반 | legacy viewer patch (패키지·브랜딩 교체) |
 | 저장소 | https://github.com/bossxor/tool_ScrollBox |
@@ -16,7 +16,7 @@
 ## 다운로드
 
 - 작업 로그: [bossxor.netlify.app](https://bossxor.netlify.app/)
-- APK: [`ScrollBox.apk`](https://github.com/bossxor/tool_ScrollBox/raw/main/releases/ScrollBox.apk) (v1.0.7)
+- APK: [`ScrollBox.apk`](https://github.com/bossxor/tool_ScrollBox/raw/main/releases/ScrollBox.apk) (v1.0.8)
 
 ```bash
 adb install -r releases/ScrollBox.apk
@@ -35,10 +35,12 @@ adb install releases/ScrollBox.apk
 - 이미지/만화(zip·cbz 등), 최근 목록, 설정
 
 ### 추가
-- 앱 잠금: **PIN** + **패턴**(3×3 드래그) + **생체**(지문/얼굴, PIN/패턴 선행)
-- 사이드바 하단 버전 표시 (`ScrollBox 1.0.7`)
+- 앱 잠금: **PIN** + **패턴**(3×3 드래그) + **생체**(지문/얼굴, PIN/패턴 선행) + **재잠금 타임아웃**(즉시/1/5/15분)
+- 사이드바 하단 버전 표시 (`ScrollBox 1.0.8`)
 - 뷰어: 하단 내비만 숨기고, **상태바 표시함** 설정 존중
-- **백업/복원**: 설정·최근목록·책갈피(이어읽기 위치) — 설정 공통 / 사이드바
+- **백업/복원**: 설정·최근목록·책갈피(이어읽기 위치)·테마 설정값(배경 이미지 제외)·파일별 인코딩 — 생성 직후 공유 시트
+- Android 11+: **모든 파일 접근** 안내 (파일 목록 진입 시)
+- 텍스트: 경로별 인코딩 자동 고정(감지 결과 저장·재오픈 시 복원)
 
 ### 숨김·제거
 - 광고 / 인앱결제 / 푸시
@@ -48,20 +50,16 @@ adb install releases/ScrollBox.apk
 
 ## 빌드 (패치 APK)
 
-작업 트리는 로컬 `C:\Temp\ScrollBoxApk` (apktool 디컴파일).
+작업 트리: `_diff/v105` (apktool).
 
 ```bash
-apktool b C:\Temp\ScrollBoxApk -o ScrollBox-unsigned.apk
-# zipalign + apksigner (scrollbox.keystore, alias scrollbox)
+apktool b _diff/v105 -o ScrollBox-unsigned.apk --use-aapt1
+# d8로 SbUx.dex 병합 → zipalign + apksigner (scrollbox.keystore, alias scrollbox)
 ```
 
 ## 디렉터리
 
 ```
-releases/                 # 배포 APK
-ScrollBox/                # (실험) Compose 프로젝트 — 현재 배포본 아님
+releases/ScrollBox.apk   # 배포용 서명 APK
+_diff/v105/              # apktool 패치 소스
 ```
-
-## 라이선스
-
-개인/사내 사용 목적.
