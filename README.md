@@ -11,9 +11,11 @@ TIViewer와 **별도 패키지**(`com.bossxor.scrollbox`)라서 기존 앱·설�
 | minSdk / targetSdk | 26 / 34 |
 | 스택 | Kotlin, Jetpack Compose, Material 3, Room, DataStore |
 | 저장소 | https://github.com/bossxor/tool_ScrollBox |
+| 작업 모음 | https://bossxor.netlify.app/ |
 
 ## 다운로드
 
+- 프로젝트 모음: [bossxor.netlify.app](https://bossxor.netlify.app/)
 - [Release v1.0.1](https://github.com/bossxor/tool_ScrollBox/releases/tag/v1.0.1)
 - APK: [ScrollBox-1.0.1-debug.apk](https://github.com/bossxor/tool_ScrollBox/releases/download/v1.0.1/ScrollBox-1.0.1-debug.apk)
 
@@ -65,9 +67,8 @@ cd ScrollBox
 ```
 ScrollBox/          # Android 프로젝트
 releases/           # 배포 APK (릴리스에도 첨부)
-TXTViewer/          # (로컬) 구 TIViewer apktool 디컴파일 — git 제외
 ```
 
 ## 라이선스
 
-개인/내부 사용 목적. 원본 TIViewer와 무관한 신규 구현입니다.
+개인/내부 사용 목적. 신규 구현입니다.
