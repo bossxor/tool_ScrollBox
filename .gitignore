@@ -7,6 +7,7 @@ _diff/
 *.aab
 *.keystore
 *.jks
+*.idsig
 TIViewer2.ver.0.9.4/
 local.properties
 .gradle/
