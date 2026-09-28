@@ -2,7 +2,7 @@
 
 로컬 파일 탐색 + 텍스트/이미지 뷰어 Android 앱.
 
-TIViewer와 **별도 패키지**(`com.bossxor.scrollbox`)라서 기존 앱·설정을 덮어쓰지 않습니다.
+패키지: `com.bossxor.scrollbox`
 
 | | |
 |---|---|
